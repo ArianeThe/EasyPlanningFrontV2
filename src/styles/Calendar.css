@@ -1,0 +1,40 @@
+/*.calendar-container {
+    display: block !important;
+    min-height: 700px !important;
+    width: 100% !important;
+    overflow: visible !important;
+    border: 2px solid red !important; 
+}
+
+.fc {
+    display: block !important;
+    min-height: 600px !important;
+    border: 3px solid blue !important; 
+}
+
+.fc-timegrid-slot {
+    border: 1px solid #000 !important;
+     background-color: #f0f0f0 !important; 
+}
+
+.fc-timegrid-slot-frame {
+    border: 1px solid #ccc !important; 
+    
+}
+
+.fc-daygrid-day-frame {
+    border: 1px solid #000 !important;
+}
+
+
+.fc-scrollgrid-section-body {
+    min-height: 650px !important; 
+}
+*/
+
+.fc-event {
+    background-color: red !important;
+    border: 2px solid black !important;
+    visibility: visible !important;
+    display: block !important;
+}
