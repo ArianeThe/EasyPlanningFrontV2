@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { loginSuccess, logout } from '../redux/userReducer';
 import '../styles/UserDashboard.css';
+import AliceLayout from '../components/AliceLayout';
 
 const UserDashboard = () => {
     const [slots, setSlots] = useState([]);
@@ -18,6 +19,7 @@ const UserDashboard = () => {
     const [sharedDocuments, setSharedDocuments] = useState([]);
     const [selectedType, setSelectedType] = useState("");
     const [appointmentTypes, setAppointmentTypes] = useState([]);
+    
 
     const [profileData, setProfileData] = useState({
         first_name: '',
@@ -33,6 +35,10 @@ const UserDashboard = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const slotsPerPage = 8;
+    const startIndex = currentPage * slotsPerPage;
+    const endIndex = startIndex + slotsPerPage;
+    const visibleSlots = slots.slice(startIndex, endIndex);
+
 
     useEffect(() => {
         
@@ -324,122 +330,170 @@ const handleCancelAppointment = async (appointmentId) => {
         }))
     ];
 
+    const handleConfirmBooking = async () => {
+  try {
+    const res = await fetch("http://localhost:5000/appointments", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify({
+        slotId: selectedSlot.id,
+        title: appointmentTitle || "Consultation",
+        type: selectedType || "standard"
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      console.log("Rendez-vous enregistré :", data);
+      // Optionnel : mettre à jour les créneaux ou affichage
+      setShowSlotModal(false);
+      setAppointments(prev => [...prev, data]); // si tu veux l’ajouter localement
+    } else {
+      console.error("Erreur réservation :", data.message);
+    }
+
+  } catch (err) {
+    console.error("Erreur réseau ou serveur :", err);
+  }
+};
+
 
     return (
-        <div className="user-dashboard">
-            <div className="dashboard-header">
-                <h1>Tableau de bord</h1>
-                <div className="user-info">
-                    <p>Bienvenue, {userInfo?.first_name} {userInfo?.last_name}</p>
-                    <div className="user-actions">
-                        <button onClick={() => setShowProfileModal(true)}>Modifier mon profil</button>
-                        <label className="notifications-toggle">
-                            <input
-                                type="checkbox"
-                                checked={notificationsEnabled}
-                                onChange={toggleNotifications}
-                            />
-                            Activer les notifications
-                        </label>
-                        <button onClick={handleLogout} className="logout-button">Déconnexion</button>
+        <AliceLayout>
+            {/* Ancienne structure commentée pour retour arrière facile
+            <div className="user-dashboard"> */}
+            <div className="user-dashboard">
+                <div className="dashboard-header">
+                    <h1>Tableau de bord</h1>
+                    <div className="user-info">
+                        <p>Bienvenue, {userInfo?.first_name} {userInfo?.last_name}</p>
+                        <div className="user-actions">
+                            <button onClick={() => setShowProfileModal(true)}>Modifier mon profil</button>
+                            <label className="notifications-toggle">
+                                <input
+                                    type="checkbox"
+                                    checked={notificationsEnabled}
+                                    onChange={toggleNotifications}
+                                />
+                                Activer les notifications
+                            </label>
+                            <button onClick={handleLogout} className="logout-button">Déconnexion</button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="dashboard-content">
-                <div className="slots-section">
-                    <h2>Créneaux disponibles</h2>
-                    {currentSlots.length === 0 ? (
-                        <p>Aucun créneau disponible pour le moment</p>
-                    ) : (
-                        <div className="slots-list">
-                            {currentSlots.map(slot => (
-                                <div key={`${slot.id}-${slot.start_time}`} className="slot-card">
-                                    <div className="slot-info">
-                                        <h3>Date: {new Intl.DateTimeFormat('fr-FR', { 
-                                            day: '2-digit', 
-                                            month: '2-digit', 
-                                            year: 'numeric' 
-                                        }).format(new Date(slot.start_time))}</h3>
-                                        <p>Heure: {new Date(slot.start_time).toLocaleTimeString('fr-FR', { 
-                                            hour: '2-digit', 
-                                            minute: '2-digit' 
-                                        })}</p>
-                                    </div>
-                                    <button 
-                                        className="book-button"
-                                        onClick={() => {
-                                            console.log("Créneau sélectionné:", slot);
-                                            setSelectedSlot(slot);
-                                            setShowSlotModal(true);
-                                        }}
-                                    >
-                                        Réserver
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                <div className="dashboard-content">
+                    <div className="slots-section">
+                        <h2>Créneaux disponibles</h2>
+                        {currentSlots.length === 0 ? (
+                            <p>Aucun créneau disponible pour le moment</p>
+                        ) : (
+                            <div className="slots-section">
+  
+  {(
 
-                 
-                    <button 
-                        className="load-more-button" 
-                        onClick={fetchMoreSlots} 
-                        disabled={currentSlots.length >= slots.length || isLoading}
-                    >
-                    {currentSlots.length >= slots.length ? "Tous les créneaux sont affichés" : isLoading ? "Chargement..." : "Plus de créneaux libres"}
-                    </button>
+    <ul className="slot-list">
+      {visibleSlots.map((slot) => (
+        <li key={slot.id} className="slot-item">
+          <div className="slot-details">
+            <span className="slot-date">
+              {new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(slot.start_time))}
+            </span>
+            <span className="slot-time">
+              {new Date(slot.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
+          <input
+            type="checkbox"
+            checked={selectedSlot?.id === slot.id}
+            onChange={() => {
+              setSelectedSlot(slot);
+              setShowSlotModal(true);
+            }}
+            className="slot-checkbox"
+          />
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
 
-                </div>
+                        )}
 
-                <div className="appointments-section">
-    <h2>Mes rendez-vous</h2>
-    {appointments.map(apt => (
-        <div key={apt.id} className="appointment-card">
-            <h3>{apt.title}</h3>
-            <p>Date: {new Date(apt.start_time).toLocaleDateString()}</p>
-            <p>Heure: {new Date(apt.start_time).toLocaleTimeString()} - {new Date(apt.end_time).toLocaleTimeString()}</p>
-
-            {apt.status === "cancelled" ? (
-                <p className="cancelled-message" style={{ color: "red", fontWeight: "bold" }}> Annulé par le patient</p>
-            ) : (
-                <button className="cancel-button" onClick={() => handleCancelAppointment(apt.id)}>
-                    Annuler
-                </button>
-            )}
-        </div>
-    ))}
+                     
+<div className="slot-navigation-wrapper">
+  <div className="slot-navigation">
+    {currentPage > 0 && (
+      <button className="nav-button" onClick={() => setCurrentPage(currentPage - 1)}>
+        ← Retour
+      </button>
+    )}
+    {endIndex < slots.length ? (
+      <button className="nav-button" onClick={() => setCurrentPage(currentPage + 1)}>
+        Plus de rdv →
+      </button>
+    ) : (
+      <span className="nav-message">✅ Tous les créneaux sont affichés</span>
+    )}
+  </div>
 </div>
 
 
-                <div className="documents-section">
-                    <h2>Documents partagés</h2>
-                    {sharedDocuments && sharedDocuments.length > 0 ? (
-                        <div className="documents-list">
-                            {sharedDocuments.map((doc, index) => (
-                                <div key={index} className="document-card">
-                                    <h3>{doc.name}</h3>
-                                    <p>Partagé le: {new Date(doc.shared_at).toLocaleDateString()}</p>
-                                    <a href={doc.url} target="_blank" rel="noopener noreferrer" className="download-button">
-                                        Télécharger
-                                    </a>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>Aucun document partagé</p>
-                    )}
-                </div>
+
+                    </div>
+
+                    <div className="appointments-section">
+        <h2>Mes rendez-vous</h2>
+        {appointments.map(apt => (
+            <div key={apt.id} className="appointment-card">
+                <h3>{apt.title}</h3>
+                <p>Date: {new Date(apt.start_time).toLocaleDateString()}</p>
+                <p>Heure: {new Date(apt.start_time).toLocaleTimeString()} - {new Date(apt.end_time).toLocaleTimeString()}</p>
+
+                {apt.status === "cancelled" ? (
+                    <p className="cancelled-message" style={{ color: "red", fontWeight: "bold" }}> Annulé par le patient</p>
+                ) : (
+                    <button className="cancel-button" onClick={() => handleCancelAppointment(apt.id)}>
+                        Annuler
+                    </button>
+                )}
             </div>
+        ))}
+    </div>
 
-            {showSlotModal && selectedSlot && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <h2>Prendre un rendez-vous</h2>
-                        <p>Date: {new Date(selectedSlot.start_time).toLocaleDateString('fr-FR')}</p>
-                        <p>Heure: {new Date(selectedSlot.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
 
-                        <select onChange={(e) => setSelectedType(Number(e.target.value))}>
+                    <div className="documents-section">
+                        <h2>Documents partagés</h2>
+                        {sharedDocuments && sharedDocuments.length > 0 ? (
+                            <div className="documents-list">
+                                {sharedDocuments.map((doc, index) => (
+                                    <div key={index} className="document-card">
+                                        <h3>{doc.name}</h3>
+                                        <p>Partagé le: {new Date(doc.shared_at).toLocaleDateString()}</p>
+                                        <a href={doc.url} target="_blank" rel="noopener noreferrer" className="download-button">
+                                            Télécharger
+                                        </a>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p>Aucun document partagé</p>
+                        )}
+                    </div>
+                </div>
+
+                {showSlotModal && selectedSlot && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <h2>Prendre un rendez-vous</h2>
+                            <p>Date: {new Date(selectedSlot.start_time).toLocaleDateString('fr-FR')}</p>
+                            <p>Heure: {new Date(selectedSlot.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
+
+                            <select onChange={(e) => setSelectedType(Number(e.target.value))}>
     <option value="" disabled>Choisissez un motif</option> {/* Option par défaut */}
     {appointmentTypes.map((type) => (
         <option key={type.id} value={type.id}> {/* Envoie l'ID et affiche le nom */}
@@ -449,83 +503,101 @@ const handleCancelAppointment = async (appointmentId) => {
 </select>
 
 
-                        <div className="modal-buttons">
-                            <button onClick={handleAppointmentSubmit}>Confirmer</button>
-                            <button onClick={() => {
-                                setShowSlotModal(false);
-                                setSelectedSlot(null);
-                                setAppointmentTitle('');
-                            }}>Annuler</button>
+                            <div className="modal-buttons">
+                                <button onClick={handleAppointmentSubmit}>Confirmer</button>
+                                <button onClick={() => {
+                                    setShowSlotModal(false);
+                                    setSelectedSlot(null);
+                                    setAppointmentTitle('');
+                                }}>Annuler</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {showProfileModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <h2>Modifier mon profil</h2>
-                        <form onSubmit={handleProfileUpdate}>
-                            <div className="form-group">
-                                <label>Prénom:</label>
-                                <input
-                                    type="text"
-                                    value={profileData.first_name}
-                                    onChange={(e) => setProfileData({...profileData, first_name: e.target.value})}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Nom:</label>
-                                <input
-                                    type="text"
-                                    value={profileData.last_name}
-                                    onChange={(e) => setProfileData({...profileData, last_name: e.target.value})}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Email:</label>
-                                <input
-                                    type="email"
-                                    value={profileData.email}
-                                    onChange={(e) => setProfileData({...profileData, email: e.target.value})}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Téléphone:</label>
-                                <input
-                                    type="tel"
-                                    value={profileData.phone}
-                                    onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Adresse:</label>
-                                <input
-                                    type="text"
-                                    value={profileData.address}
-                                    onChange={(e) => setProfileData({...profileData, address: e.target.value})}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Date de naissance:</label>
-                                <input
-                                    type="date"
-                                    value={profileData.birth_date}
-                                    onChange={(e) => setProfileData({...profileData, birth_date: e.target.value})}
-                                />
-                            </div>
-                            <div className="modal-buttons">
-                                <button type="submit">Enregistrer</button>
-                                <button type="button" onClick={() => setShowProfileModal(false)}>Annuler</button>
-                            </div>
-                        </form>
+                {showProfileModal && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <h2>Modifier mon profil</h2>
+                            <form onSubmit={handleProfileUpdate}>
+                                <div className="form-group">
+                                    <label>Prénom:</label>
+                                    <input
+                                        type="text"
+                                        value={profileData.first_name}
+                                        onChange={(e) => setProfileData({...profileData, first_name: e.target.value})}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Nom:</label>
+                                    <input
+                                        type="text"
+                                        value={profileData.last_name}
+                                        onChange={(e) => setProfileData({...profileData, last_name: e.target.value})}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Email:</label>
+                                    <input
+                                        type="email"
+                                        value={profileData.email}
+                                        onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Téléphone:</label>
+                                    <input
+                                        type="tel"
+                                        value={profileData.phone}
+                                        onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Adresse:</label>
+                                    <input
+                                        type="text"
+                                        value={profileData.address}
+                                        onChange={(e) => setProfileData({...profileData, address: e.target.value})}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Date de naissance:</label>
+                                    <input
+                                        type="date"
+                                        value={profileData.birth_date}
+                                        onChange={(e) => setProfileData({...profileData, birth_date: e.target.value})}
+                                    />
+                                </div>
+                                <div className="modal-buttons">
+                                    <button type="submit">Enregistrer</button>
+                                    <button type="button" onClick={() => setShowProfileModal(false)}>Annuler</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )}
+            </div>
+            {showSlotModal && selectedSlot && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h3>Confirmer le rendez-vous</h3>
+      <p>
+        Souhaitez-vous réserver le créneau du{" "}
+        <strong>{new Intl.DateTimeFormat('fr-FR').format(new Date(selectedSlot.start_time))}</strong>{" "}
+        à{" "}
+        <strong>{new Date(selectedSlot.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</strong> ?
+      </p>
+      <button onClick={handleConfirmBooking}>Confirmer</button>
+      <button onClick={() => setShowSlotModal(false)}>Annuler</button>
+    </div>
+  </div>
+)}
+
+            {/* </div> */}
+        </AliceLayout>
     );
 };
 

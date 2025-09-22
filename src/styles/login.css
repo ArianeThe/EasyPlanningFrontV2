@@ -1,13 +1,24 @@
+
 .login-container {
-    max-width: 400px;
+    max-width: 600px;
     margin: 0 auto;
     padding: 20px;
+    background-color: #c7d6b7;
+    text-align: center;
 }
+
 .form-group {
     margin-bottom: 15px;
 }
+
+input,
+button {
+  display: block;
+  margin: 0 auto;
+}
+
 input {
-    width: 100%;
+    width: 80%;
     padding: 8px;
     margin-bottom: 10px;
     border: 1px solid #ddd;
@@ -21,7 +32,7 @@ input.error {
     margin-bottom: 10px;
 }
 button {
-    width: 100%;
+    width: 60%;
     padding: 10px;
     background-color: #007bff;
     color: white;

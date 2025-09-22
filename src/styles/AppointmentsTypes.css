@@ -1,0 +1,80 @@
+.bouton {
+  padding: 6px 12px;
+  font-size: 14px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: all 0.2s ease-in-out;
+  color: grey;
+  width: 15%;
+}
+
+.button-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+
+.bouton:hover {
+  background-color: #e0e0e0;
+}
+
+.color-wrapper {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #666;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+.color-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.type-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.type-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+
+}
+
+.type-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-grow: 1; /* ⚡️ prend toute la place à gauche */
+}
+
+.delete-btn {
+  width: auto;
+  margin-left: 0;
+}
+
+.color-box {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}

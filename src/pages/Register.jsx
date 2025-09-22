@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../redux/userReducer";
 import "../styles/login.css";
+import AliceLayout from "../components/AliceLayout";
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -81,93 +82,98 @@ const Register = () => {
     };
 
     return (
-        <div className="login-container">
-            <h2>Inscription</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <input
-                        type="text"
-                        name="first_name"
-                        placeholder="Prénom"
-                        value={formData.first_name}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <input
-                        type="text"
-                        name="last_name"
-                        placeholder="Nom"
-                        value={formData.last_name}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <input
-                        type="date"
-                        name="birth_date"
-                        placeholder="Date de naissance"
-                        value={formData.birth_date}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="form-group">
-                    <input
-                        type="tel"
-                        name="phone"
-                        placeholder="Téléphone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="form-group">
-                    <input
-                        type="text"
-                        name="address"
-                        placeholder="Adresse"
-                        value={formData.address}
-                        onChange={handleChange}
-                    />
-                </div>
-                <div className="form-group">
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Mot de passe"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <input
-                        type="password"
-                        name="confirmPassword"
-                        placeholder="Confirmer le mot de passe"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                {errorMessage && <div className="error-message">{errorMessage}</div>}
-                <button type="submit">S'inscrire</button>
-            </form>
-            <p className="mt-3">
-                Déjà inscrit ? <a href="/login">Se connecter</a>
-            </p>
-        </div>
+        <AliceLayout>
+            {/* Ancienne structure commentée pour retour arrière facile
+            <div className="login-container"> */}
+            <div className="login-container">
+                <h2>Inscription</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <input
+                            type="text"
+                            name="first_name"
+                            placeholder="Prénom"
+                            value={formData.first_name}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input
+                            type="text"
+                            name="last_name"
+                            placeholder="Nom"
+                            value={formData.last_name}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input
+                            type="date"
+                            name="birth_date"
+                            placeholder="Date de naissance"
+                            value={formData.birth_date}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input
+                            type="tel"
+                            name="phone"
+                            placeholder="Téléphone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input
+                            type="text"
+                            name="address"
+                            placeholder="Adresse"
+                            value={formData.address}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="Mot de passe"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input
+                            type="password"
+                            name="confirmPassword"
+                            placeholder="Confirmer le mot de passe"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    {errorMessage && <div className="error-message">{errorMessage}</div>}
+                    <button type="submit">S'inscrire</button>
+                </form>
+                <p className="mt-3">
+                    Déjà inscrit ? <a href="/login">Se connecter</a>
+                </p>
+            </div>
+            {/* </div> */}
+        </AliceLayout>
     );
 };
 

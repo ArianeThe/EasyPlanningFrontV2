@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import AliceLayout from "../components/AliceLayout";
 
 const UserProfile = () => {
     const { userId } = useParams();
@@ -31,12 +32,15 @@ const UserProfile = () => {
     }, [userId]);
 
     return (
-        <div>
-            {user ? (
-                <>
-                    <h1>Profil de {user.first_name} {user.last_name}</h1>
-                    <p>Téléphone : {user.phone}</p>
-                    <h2>Historique des rendez-vous</h2>
+        <AliceLayout>
+            {/* Ancienne structure commentée pour retour arrière facile
+            <div> */}
+            <div>
+                {user ? (
+                    <>
+                        <h1>Profil de {user.first_name} {user.last_name}</h1>
+                        <p>Téléphone : {user.phone}</p>
+                        <h2>Historique des rendez-vous</h2>
 <ul>
     {appointments.map(apt => (
         <div key={apt.id} className="appointment-card">
@@ -53,14 +57,16 @@ const UserProfile = () => {
     ))}
 </ul>
 
-                </>
-            ) : (
-                <p>Chargement des données...</p>
-            )}
-            <button onClick={() => navigate("/admin")} style={{ marginBottom: "20px" }}>
-                ⬅ Retour au Tableau de Bord
-            </button>
-        </div>
+                    </>
+                ) : (
+                    <p>Chargement des données...</p>
+                )}
+                <button onClick={() => navigate("/admin")} style={{ marginBottom: "20px" }}>
+                    ⬅ Retour au Tableau de Bord
+                </button>
+            </div>
+            {/* </div> */}
+        </AliceLayout>
     );
 };
 

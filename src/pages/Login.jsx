@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginSuccess, logout } from "../redux/userReducer";
 import "../styles/login.css";  
+import AliceLayout from "../components/AliceLayout";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -61,36 +62,41 @@ const Login = () => {
     };
 
     return (
-        <div className="login-container">
-            <h2>Connexion</h2>
-            <form onSubmit={handleLogin}>
-                <div className="form-group">
-                    <input 
-                        type="email" 
-                        placeholder="Email" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className={errorMessage.includes('email') ? 'error' : ''}
-                    />
-                </div>
-                <div className="form-group">
-                    <input 
-                        type="password" 
-                        placeholder="Mot de passe" 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)} 
-                    />
-                </div>
-                {errorMessage && <div className="error-message">{errorMessage}</div>}
-                <button type="submit">Se connecter</button>
-            </form>
+        <AliceLayout>
+            {/* Ancienne structure commentée pour retour arrière facile
+            <div className="login-container"> */}
+            <div className="login-container">
+                <h2>Connexion</h2>
+                <form onSubmit={handleLogin}>
+                    <div className="form-group">
+                        <input 
+                            type="email" 
+                            placeholder="Email" 
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className={errorMessage.includes('email') ? 'error' : ''}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input 
+                            type="password" 
+                            placeholder="Mot de passe" 
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)} 
+                        />
+                    </div>
+                    {errorMessage && <div className="error-message">{errorMessage}</div>}
+                    <button type="submit">Se connecter</button>
+                </form>
 
-            <p className="mt-3">
-                Pas encore de compte ? <a href="/register">S'inscrire</a>
-            </p>
+                <p className="mt-3">
+                    Pas encore de compte ? <a href="/register">S'inscrire</a>
+                </p>
 
-            {isAuthenticated && <button onClick={handleLogout}>Déconnexion</button>}
-        </div>
+                {isAuthenticated && <button onClick={handleLogout}>Déconnexion</button>}
+            </div>
+            {/* </div> */}
+        </AliceLayout>
     );
 };
 

@@ -2,6 +2,7 @@
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
+    background-color: #d6e7c5;
 }
 
 .dashboard-header {
@@ -16,6 +17,96 @@
     align-items: center;
     gap: 20px;
 }
+
+.slot-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.slot-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #c0dba4;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 12px 18px;
+  font-family: 'Montserrat', sans-serif;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.slot-details {
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+  align-items: center;
+  gap: 4px;
+}
+
+.slot-checkbox {
+  transform: scale(1.2);
+  accent-color: #2b2b2b;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background-color: #a4b197;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.slot-navigation-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.slot-navigation {
+  display: flex;
+  gap: 12px;
+}
+
+.nav-button {
+  background-color: #a6be97;
+  color: white;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.nav-button:hover,
+.load-more-button:hover {
+  background-color: #444;
+}
+
+.load-more-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 
 .notifications-toggle {
     display: flex;
