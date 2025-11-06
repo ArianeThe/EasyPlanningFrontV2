@@ -14,7 +14,7 @@ const UserProfile = () => {
 
     useEffect(() => {
 
-        console.log("🔍 userId mis à jour :", userId);
+        console.log(" userId mis à jour :", userId);
         
         // Récupérer les infos de l'utilisateur
         axios.get(`http://localhost:5000/admin/user/${userId}`, {
@@ -33,8 +33,6 @@ const UserProfile = () => {
 
     return (
         <AliceLayout>
-            {/* Ancienne structure commentée pour retour arrière facile
-            <div> */}
             <div>
                 {user ? (
                     <>
@@ -65,7 +63,6 @@ const UserProfile = () => {
                     ⬅ Retour au Tableau de Bord
                 </button>
             </div>
-            {/* </div> */}
         </AliceLayout>
     );
 };

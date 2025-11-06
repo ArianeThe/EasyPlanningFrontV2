@@ -27,12 +27,21 @@ const addType = () => {
       { name: newType, color: newColor },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     )
-    .then(() => {
-      setAppointmentTypes([...appointmentTypes, { name: newType, color: newColor }]);
+    .then((response) => {
+      setAppointmentTypes([...appointmentTypes, 
+        //{ name: newType, color: newColor }
+        response.data]);
       setNewType("");
       setNewColor("#000000");
     })
-    .catch(error => console.error("Erreur ajout type RDV :", error));
+    .catch(error => {
+  if (error.response?.status === 500) {
+    alert("Impossible de supprimer ce type car il est encore utilisé dans des rendez-vous.");
+  } else {
+    console.error("Erreur suppression type RDV :", error);
+  }
+});
+    //.catch(error => console.error("Erreur ajout type RDV :", error));
   }
 };
 
@@ -46,6 +55,7 @@ const removeType = (typeId) => {
 };
 
 console.log("🔍 Liste des types de rendez-vous :", appointmentTypes);
+console.log("Token utilisé :", localStorage.getItem("token"));
 
 
     return (

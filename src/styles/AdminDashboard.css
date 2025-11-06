@@ -57,6 +57,7 @@
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* évite le débordement visuel aux bords arrondis */
 }
 
 .calendar-section h2 {
@@ -232,6 +233,13 @@
     background: white;
     border-radius: 8px;
     overflow: hidden;
+}
+
+/* Contrainte d'affichage pour éviter le débordement vertical */
+.calendar-container {
+    height: 700px; /* ajuste si besoin */
+    width: 100%;
+    overflow: auto; /* permet le scroll interne si le contenu dépasse */
 }
 
 .fc .fc-toolbar-title {

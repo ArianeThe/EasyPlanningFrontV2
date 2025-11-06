@@ -1,0 +1,105 @@
+.appointment-page {
+  padding: 16px;
+}
+
+.appointment-title {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  text-align: center;
+}
+
+.appointment-grid {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.appointment-col {
+  flex: 1;
+  min-width: 280px;
+}
+
+.col-title {
+  text-align: center;
+  margin: 0 0 12px 0;
+  font-size: 16px;
+}
+
+.appointment-row {
+  margin-bottom: 12px;
+}
+
+.panel {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #e3e3e3;
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.panel-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.reschedule-row,
+.share-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.input {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background: #1976d2;
+  color: #fff;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  background: #d32f2f;
+}
+
+.btn-fit {
+  width: fit-content;
+}
+
+/* Largeur harmonisée avec le bouton d'annulation via variable CSS */
+.input-ctrl,
+.btn-ctrl {
+  width: var(--ctrl-w, auto);
+}
+
+.back-row {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.docs-list ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.docs-empty {
+  color: #666;
+  font-size: 13px;
+}
+
+

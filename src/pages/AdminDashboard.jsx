@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/userReducer';
 import '../styles/AdminDashboard.css';
+import '../styles/UserDashboard.css';
+import AliceLayout from '../components/AliceLayout';
 import CalendarComponent from '../components/Calendar';
 
 
@@ -79,7 +81,8 @@ const AdminDashboard = () => {
     console.log("🚀 `AdminDashboard.jsx` tente de rendre `Calendar.jsx`");
 
     return (
-        <div className="admin-dashboard">
+        <AliceLayout>
+        <div className="user-dashboard">
             <div className="dashboard-header">
                 <h1>Tableau de bord administrateur</h1>
                 <button onClick={handleLogout} className="logout-button">Déconnexion</button>
@@ -88,7 +91,7 @@ const AdminDashboard = () => {
             <div className="dashboard-content">
                 <div className="calendar-section">
                     <h2>Calendrier des rendez-vous</h2>
-                    <div style={{ height: '800px', width: '100%' }}>
+                    <div className="calendar-container">
                         <CalendarComponent 
                             events={reduxEvents} 
                             onEventClick={handleEventClick}
@@ -140,6 +143,7 @@ const AdminDashboard = () => {
                 </div>
             )}
         </div>
+        </AliceLayout>
     );
 };
 

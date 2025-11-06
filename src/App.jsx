@@ -9,6 +9,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Calendar from "./components/Calendar";
 import AppointmentTypes from "./pages/AppointmentsTypes";
 import UserProfile from "./pages/UserProfile";
+import Appointment from "./pages/appointments/Appointment";
 import "./App.css";
 
 const App = () => {
@@ -97,6 +98,13 @@ const App = () => {
                             </div>
                         </ProtectedUserRoute>
                     } />
+
+                    <Route 
+                        path="/appointment/:appointmentId" 
+                        element={
+                            isAuthenticated ? <Appointment /> : <Navigate to="/login" />
+                        }
+                    />
 
 
                 </Routes>

@@ -4,6 +4,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { fetchAppointments } from "../redux/calendarReducer";
 import frLocale from '@fullcalendar/core/locales/fr';
@@ -21,6 +22,7 @@ console.log("🚀 `Calendar.jsx` chargé !");
 
 const Calendar = ({ events }) => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const userRole = useSelector((state) => state.user.role);
     const userId = useSelector((state) => state.user.userInfo?.id);
     const calendarStatus = useSelector((state) => state.calendar.status);
@@ -202,8 +204,11 @@ const Calendar = ({ events }) => {
                 slotDuration="00:45:00"
                 eventClick={(info) => {
                     console.log("🎯 Événement cliqué:", info.event);
-                    if (info.event.extendedProps?.userId) {
-                        window.location.href = `/admin/user/${info.event.extendedProps.userId}`;
+                    // Redirige vers la page de détail du rendez-vous
+                    const id = info.event.id?.toString();
+                    if (id) {
+                        info.jsEvent?.preventDefault?.();
+                        navigate(`/appointment/${id}`);
                     }
                 }}
                 // 🔧 Callbacks de diagnostic
