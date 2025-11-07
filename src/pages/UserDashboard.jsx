@@ -8,7 +8,6 @@ import AliceLayout from '../components/AliceLayout';
 
 const UserDashboard = () => {
     const [slots, setSlots] = useState([]);
-    const [currentSlots, setCurrentSlots] = useState([]);  
     const [isLoading, setIsLoading] = useState(false);
     const [appointments, setAppointments] = useState([]);
     const [showSlotModal, setShowSlotModal] = useState(false);
@@ -33,11 +32,14 @@ const UserDashboard = () => {
     const dispatch = useDispatch();
     const userInfo = useSelector(state => state.user.userInfo);
 
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(0);
     const slotsPerPage = 8;
+    // Filtrer uniquement les créneaux disponibles (non pris)
+    const availableSlots = slots.filter(slot => !slot.taken);
     const startIndex = currentPage * slotsPerPage;
     const endIndex = startIndex + slotsPerPage;
-    const visibleSlots = slots.slice(startIndex, endIndex);
+    const visibleSlots = availableSlots.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(availableSlots.length / slotsPerPage);
 
 
     useEffect(() => {
@@ -58,6 +60,14 @@ const UserDashboard = () => {
         }
     }, [userInfo]);
 
+    // Réinitialiser la page quand les créneaux disponibles changent
+    useEffect(() => {
+        const availableSlotsCount = slots.filter(slot => !slot.taken).length;
+        if (availableSlotsCount > 0 && currentPage * slotsPerPage >= availableSlotsCount) {
+            setCurrentPage(0);
+        }
+    }, [slots]);
+
 
 // Fonction pour récupérer les créneaux disponibles
 const fetchSlots = async () => {
@@ -74,25 +84,9 @@ const fetchSlots = async () => {
         console.log(" Créneaux récupérés sur 2 mois :", response.data.length);
 
         setSlots(response.data); // Stocke tous les créneaux récupérés
-        setCurrentSlots(response.data.slice(0, slotsPerPage)); // Affiche les 8 premiers créneaux
 
     } catch (error) {
         console.error("🚨 Erreur récupération des créneaux:", error);
-    }
-};
-
-    // Synchronise `currentSlots` après la récupération initiale
-    useEffect(() => {
-        if (slots.length > 0 && currentSlots.length === 0) {
-            setCurrentSlots(slots.slice(0, slotsPerPage));
-        }
-    }, [slots]);
-
-
-    const fetchMoreSlots = () => {
-    if (currentSlots.length < slots.length) { 
-        const nextSlots = slots.slice(currentSlots.length, currentSlots.length + slotsPerPage);
-        setCurrentSlots(prevSlots => [...prevSlots, ...nextSlots]); // Ajoute les créneaux suivants par groupes de 8
     }
 };
 
@@ -330,6 +324,17 @@ const handleCancelAppointment = async (appointmentId) => {
         }))
     ];
 
+    // Séparer les rendez-vous en à venir et passés
+    const now = new Date();
+    const upcomingAppointments = appointments.filter(apt => {
+        const appointmentDate = new Date(apt.start_time);
+        return appointmentDate >= now && apt.status !== 'cancelled';
+    });
+    const pastAppointments = appointments.filter(apt => {
+        const appointmentDate = new Date(apt.start_time);
+        return appointmentDate < now || apt.status === 'cancelled';
+    });
+
     const handleConfirmBooking = async () => {
   try {
     const res = await fetch("http://localhost:5000/appointments", {
@@ -368,9 +373,8 @@ const handleCancelAppointment = async (appointmentId) => {
             <div className="user-dashboard"> */}
             <div className="user-dashboard">
                 <div className="dashboard-header">
-                    <h1>Tableau de bord</h1>
-                    <div className="user-info">
-                        <p>Bienvenue, {userInfo?.first_name} {userInfo?.last_name}</p>
+                    <div className="welcome-section">
+                        <p className="welcome-text">Bienvenue {userInfo?.first_name} {userInfo?.last_name}</p>
                         <div className="user-actions">
                             <button onClick={() => setShowProfileModal(true)}>Modifier mon profil</button>
                             <label className="notifications-toggle">
@@ -387,102 +391,127 @@ const handleCancelAppointment = async (appointmentId) => {
                 </div>
 
                 <div className="dashboard-content">
-                    <div className="slots-section">
-                        <h2>Créneaux disponibles</h2>
-                        {currentSlots.length === 0 ? (
-                            <p>Aucun créneau disponible pour le moment</p>
-                        ) : (
-                            <div className="slots-section">
-  
-  {(
-
-    <ul className="slot-list">
-      {visibleSlots.map((slot) => (
-        <li key={slot.id} className="slot-item">
-          <div className="slot-details">
-            <span className="slot-date">
-              {new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(slot.start_time))}
-            </span>
-            <span className="slot-time">
-              {new Date(slot.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          </div>
-          <input
-            type="checkbox"
-            checked={selectedSlot?.id === slot.id}
-            onChange={() => {
-              setSelectedSlot(slot);
-              setShowSlotModal(true);
-            }}
-            className="slot-checkbox"
-          />
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
-
-                        )}
-
-                     
-<div className="slot-navigation-wrapper">
-  <div className="slot-navigation">
-    {currentPage > 0 && (
-      <button className="nav-button" onClick={() => setCurrentPage(currentPage - 1)}>
-        ← Retour
-      </button>
-    )}
-    {endIndex < slots.length ? (
-      <button className="nav-button" onClick={() => setCurrentPage(currentPage + 1)}>
-        Plus de rdv →
-      </button>
-    ) : (
-      <span className="nav-message">✅ Tous les créneaux sont affichés</span>
-    )}
-  </div>
-</div>
-
-
-
+                    {/* Colonne gauche : Créneaux disponibles */}
+                    <div className="left-column">
+                        <div className="slots-section">
+                            <h2 className="slots-title">Créneaux disponibles</h2>
+                            <div className="slot-navigation">
+                                {currentPage > 0 && (
+                                    <button className="nav-button" onClick={() => setCurrentPage(currentPage - 1)}>
+                                        ← Retour
+                                    </button>
+                                )}
+                                {currentPage < totalPages - 1 && (
+                                    <button className="nav-button" onClick={() => setCurrentPage(currentPage + 1)}>
+                                        Plus de rdv →
+                                    </button>
+                                )}
+                            </div>
+                            {visibleSlots.length === 0 ? (
+                                <p>Aucun créneau disponible pour le moment</p>
+                            ) : (
+                                <ul className="slot-list">
+                                    {visibleSlots.map((slot) => (
+                                        <li key={slot.id} className="slot-item">
+                                            <div className="slot-details">
+                                                <span className="slot-date">
+                                                    {new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(slot.start_time))}
+                                                </span>
+                                                <span className="slot-time">
+                                                    {new Date(slot.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </div>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedSlot?.id === slot.id}
+                                                onChange={() => {
+                                                    setSelectedSlot(slot);
+                                                    setShowSlotModal(true);
+                                                }}
+                                                className="slot-checkbox"
+                                            />
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
                     </div>
 
-                    <div className="appointments-section">
-        <h2>Mes rendez-vous</h2>
-        {appointments.map(apt => (
-            <div key={apt.id} className="appointment-card">
-                <h3>{apt.title}</h3>
-                <p>Date: {new Date(apt.start_time).toLocaleDateString()}</p>
-                <p>Heure: {new Date(apt.start_time).toLocaleTimeString()} - {new Date(apt.end_time).toLocaleTimeString()}</p>
-
-                {apt.status === "cancelled" ? (
-                    <p className="cancelled-message" style={{ color: "red", fontWeight: "bold" }}> Annulé par le patient</p>
-                ) : (
-                    <button className="cancel-button" onClick={() => handleCancelAppointment(apt.id)}>
-                        Annuler
-                    </button>
-                )}
-            </div>
-        ))}
-    </div>
-
-
-                    <div className="documents-section">
-                        <h2>Documents partagés</h2>
-                        {sharedDocuments && sharedDocuments.length > 0 ? (
-                            <div className="documents-list">
-                                {sharedDocuments.map((doc, index) => (
-                                    <div key={index} className="document-card">
-                                        <h3>{doc.name}</h3>
-                                        <p>Partagé le: {new Date(doc.shared_at).toLocaleDateString()}</p>
-                                        <a href={doc.url} target="_blank" rel="noopener noreferrer" className="download-button">
-                                            Télécharger
-                                        </a>
-                                    </div>
-                                ))}
+                    {/* Colonne droite : Informations du profil */}
+                    <div className="right-column">
+                        {/* Mes informations */}
+                        <div className="profile-info-section">
+                            <h2>Mes informations</h2>
+                            <div className="profile-info-content">
+                                <p><strong>Nom:</strong> {userInfo?.last_name}</p>
+                                <p><strong>Prénom:</strong> {userInfo?.first_name}</p>
+                                <p><strong>Email:</strong> {userInfo?.email}</p>
+                                {userInfo?.phone && <p><strong>Téléphone:</strong> {userInfo.phone}</p>}
+                                {userInfo?.address && <p><strong>Adresse:</strong> {userInfo.address}</p>}
+                                {userInfo?.birth_date && <p><strong>Date de naissance:</strong> {new Date(userInfo.birth_date).toLocaleDateString('fr-FR')}</p>}
                             </div>
-                        ) : (
-                            <p>Aucun document partagé</p>
-                        )}
+                        </div>
+
+                        {/* Mes rendez-vous à venir */}
+                        <div className="appointments-section">
+                            <h2>Mes rendez-vous à venir</h2>
+                            {upcomingAppointments.length === 0 ? (
+                                <p>Aucun rendez-vous à venir</p>
+                            ) : (
+                                <div className="appointments-list">
+                                    {upcomingAppointments.map(apt => (
+                                        <div key={apt.id} className="appointment-card">
+                                            <h3>{apt.title || 'Rendez-vous'}</h3>
+                                            <p>Date: {new Date(apt.start_time).toLocaleDateString('fr-FR')}</p>
+                                            <p>Heure: {new Date(apt.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - {new Date(apt.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
+                                            <button className="cancel-button" onClick={() => handleCancelAppointment(apt.id)}>
+                                                Annuler
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Mes rendez-vous passés */}
+                        <div className="appointments-section past-appointments">
+                            <h2>Mes rendez-vous passés</h2>
+                            {pastAppointments.length === 0 ? (
+                                <p>Aucun rendez-vous passé</p>
+                            ) : (
+                                <div className="appointments-list">
+                                    {pastAppointments.map(apt => (
+                                        <div key={apt.id} className="appointment-card past-card">
+                                            <h3>{apt.title || 'Rendez-vous'}</h3>
+                                            <p>Date: {new Date(apt.start_time).toLocaleDateString('fr-FR')}</p>
+                                            <p>Heure: {new Date(apt.start_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - {new Date(apt.end_time).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
+                                            {apt.status === "cancelled" && (
+                                                <p className="cancelled-message">Annulé</p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Mes documents partagés */}
+                        <div className="documents-section">
+                            <h2>Mes documents partagés</h2>
+                            <div className="documents-buttons">
+                                <button 
+                                    className="documents-button"
+                                    onClick={() => navigate(`/documents/${userInfo?.id}`)}
+                                >
+                                    Accéder à mes documents
+                                </button>
+                                <button 
+                                    className="documents-button add-document-button"
+                                    onClick={() => navigate('/documents/upload')}
+                                >
+                                    ➕ Ajouter un document
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

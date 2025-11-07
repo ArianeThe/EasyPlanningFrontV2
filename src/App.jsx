@@ -10,11 +10,19 @@ import Calendar from "./components/Calendar";
 import AppointmentTypes from "./pages/AppointmentsTypes";
 import UserProfile from "./pages/UserProfile";
 import Appointment from "./pages/appointments/Appointment";
+import DocumentsList from "./pages/documents/Documents-list";
+import DocumentDetail from "./pages/documents/Document-detail";
+import DocumentUpload from "./pages/documents/DocumentUpload";
 import "./App.css";
 
 const App = () => {
     const dispatch = useDispatch();
-    const { isAuthenticated, role } = useSelector((state) => state.user);
+    const { isAuthenticated, role, userInfo } = useSelector((state) => state.user);
+
+    // Composant pour rediriger /mes-documents vers /documents/{userId}
+    const RedirectToMyDocuments = () => {
+        return <Navigate to={`/documents/${userInfo?.id}`} replace />;
+    };
 
     const handleLogout = () => {
       dispatch(logout());  // Supprimer l'état Redux
@@ -32,6 +40,11 @@ const App = () => {
     // Composant pour protéger les routes utilisateur
     const ProtectedUserRoute = ({ children }) => {
         return isAuthenticated && role === "user" ? children : <Navigate to="/login" />;
+    };
+
+    // Composant pour protéger les routes de documents (admin ou propriétaire)
+    const ProtectedDocumentsRoute = ({ children }) => {
+        return isAuthenticated ? children : <Navigate to="/login" />;
     };
 
     return (
@@ -103,6 +116,42 @@ const App = () => {
                         path="/appointment/:appointmentId" 
                         element={
                             isAuthenticated ? <Appointment /> : <Navigate to="/login" />
+                        }
+                    />
+
+                    <Route 
+                        path="/mes-documents" 
+                        element={
+                            <ProtectedDocumentsRoute>
+                                <RedirectToMyDocuments />
+                            </ProtectedDocumentsRoute>
+                        }
+                    />
+
+                    <Route 
+                        path="/documents/:userId" 
+                        element={
+                            <ProtectedDocumentsRoute>
+                                <DocumentsList />
+                            </ProtectedDocumentsRoute>
+                        }
+                    />
+
+                    <Route 
+                        path="/documents/:userId/:documentId" 
+                        element={
+                            <ProtectedDocumentsRoute>
+                                <DocumentDetail />
+                            </ProtectedDocumentsRoute>
+                        }
+                    />
+
+                    <Route 
+                        path="/documents/upload" 
+                        element={
+                            <ProtectedDocumentsRoute>
+                                <DocumentUpload />
+                            </ProtectedDocumentsRoute>
                         }
                     />
 
