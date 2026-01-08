@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { API_URL } from '../../config';
 import AliceLayout from '../../components/AliceLayout';
 import '../../styles/Documents.css';
 
@@ -43,7 +44,7 @@ const DocumentsList = () => {
                 return;
             }
             
-            const response = await axios.get(`http://localhost:5000/documents/${userIdToFetch}`, {
+            const response = await axios.get(`${API_URL}/documents/${userIdToFetch}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
 
@@ -76,7 +77,7 @@ const DocumentsList = () => {
                 return;
             }
             
-            await axios.delete(`http://localhost:5000/documents/${userIdToUse}/${documentId}`, {
+            await axios.delete(`${API_URL}/documents/${userIdToUse}/${documentId}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
 

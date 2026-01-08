@@ -50,8 +50,6 @@
     grid-template-columns: 2fr 1fr;
     gap: 30px;
 }
-
-
 .calendar-section {
     background: white;
     padding: 20px;
@@ -237,7 +235,7 @@
 
 /* Contrainte d'affichage pour éviter le débordement vertical */
 .calendar-container {
-    height: 700px; /* ajuste si besoin */
+    height: 100%;
     width: 100%;
     overflow: auto; /* permet le scroll interne si le contenu dépasse */
 }

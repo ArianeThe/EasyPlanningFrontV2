@@ -1,7 +1,8 @@
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
+import { API_URL } from "../../config";
 import { fetchAppointments } from "../../redux/calendarReducer";
 import "../../styles/Appointment.css";
 import AliceLayout from "../../components/AliceLayout";
@@ -19,9 +20,6 @@ const Appointment = () => {
     const [shareLoading, setShareLoading] = useState(false);
     const [newDate, setNewDate] = useState(""); // yyyy-mm-dd
     const [newTime, setNewTime] = useState(""); // HH:mm
-    const [file, setFile] = useState(null);
-    const [sharedDocs] = useState([]); // placeholder pour liste de documents partagés
-
     const event = useMemo(() => {
         return events?.find(e => e.id?.toString() === appointmentId?.toString());
     }, [events, appointmentId]);
@@ -50,6 +48,30 @@ const Appointment = () => {
         if (statusLabel?.toLowerCase() === "honored") return "Honoré";
         return "Confirmé";
     })();
+
+    const [file, setFile] = useState(null);
+    const [sharedDocs, setSharedDocs] = useState([]);
+    const [docsLoading, setDocsLoading] = useState(false);
+
+    const fetchSharedDocs = useCallback(async () => {
+        if (!event?.id) return;
+        try {
+            setDocsLoading(true);
+            const headers = {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            };
+            const response = await axios.get(`${API_URL}/appointments/${event.id}/documents`, { headers });
+            setSharedDocs(response.data.documents || []);
+        } catch (error) {
+            console.error("Erreur lors de la récupération des documents partagés", error);
+        } finally {
+            setDocsLoading(false);
+        }
+    }, [event?.id]);
+
+    useEffect(() => {
+        fetchSharedDocs();
+    }, [fetchSharedDocs]);
 
     // Mesure de la largeur du bouton d'annulation pour l'appliquer aux contrôles de droite
     const cancelBtnRef = useRef(null);
@@ -87,7 +109,7 @@ const Appointment = () => {
             const headers = {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             };
-            await axios.post(`http://localhost:5000/appointments/${event.id}/cancel`, {}, { headers });
+            await axios.post(`${API_URL}/appointments/${event.id}/cancel`, {}, { headers });
             await dispatch(fetchAppointments());
         } catch (e) {
             console.error("Annulation échouée", e);
@@ -108,7 +130,7 @@ const Appointment = () => {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
                 "Content-Type": "application/json",
             };
-            await axios.put(`http://localhost:5000/appointments/${event.id}`, { start: newStartIso, end: newEndIso }, { headers });
+            await axios.put(`${API_URL}/appointments/${event.id}`, { start: newStartIso, end: newEndIso }, { headers });
             await dispatch(fetchAppointments());
             setNewDate("");
             setNewTime("");
@@ -125,11 +147,13 @@ const Appointment = () => {
             setShareLoading(true);
             const form = new FormData();
             form.append("file", file);
+            form.append("titre", file.name || "Document");
             const headers = {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             };
-            await axios.post(`http://localhost:5000/appointments/${event.id}/share`, form, { headers });
+            await axios.post(`${API_URL}/appointments/${event.id}/share`, form, { headers });
             setFile(null);
+            await fetchSharedDocs();
         } catch (e) {
             console.error("Partage échoué", e);
         } finally {
@@ -191,9 +215,9 @@ const Appointment = () => {
                         </div>
                     </div>
 
-                    {role === "admin" && (
+                    {(role === "admin" || isOwner) && (
                         <div className="panel">
-                            <div className="panel-title">Partager un document avec l'utilisateur</div>
+                            <div className="panel-title">Partager un document</div>
                             <div className="share-row">
                                 <input className="input input-ctrl" type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
                                 <button className="btn btn-ctrl" onClick={handleShare} disabled={shareLoading || !file}>
@@ -206,13 +230,24 @@ const Appointment = () => {
                     <div className="panel">
                         <div className="panel-title">Documents partagés</div>
                         <div className="docs-list">
-                            {sharedDocs.length === 0 ? (
+                            {docsLoading ? (
+                                <div className="docs-empty">Chargement…</div>
+                            ) : sharedDocs.length === 0 ? (
                                 <div className="docs-empty">Aucun document partagé.</div>
                             ) : (
                                 <ul>
                                     {sharedDocs.map((doc) => (
                                         <li key={doc.id}>
-                                            <a href={doc.url} target="_blank" rel="noreferrer">{doc.name}</a>
+                                            <span>{doc.name}</span>
+                                            {patientId && (
+                                                <a
+                                    href={`${API_URL}/documents/${patientId}/${doc.id}/download?token=${localStorage.getItem("token")}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                >
+                                                    Télécharger
+                                                </a>
+                                            )}
                                         </li>
                                     ))}
                                 </ul>

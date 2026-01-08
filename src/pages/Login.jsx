@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { API_URL } from "../config";
 import { useDispatch, useSelector } from "react-redux"; 
 import { useNavigate } from "react-router-dom";
 import { loginSuccess, logout } from "../redux/userReducer";
@@ -39,7 +40,7 @@ const Login = () => {
         }
 
         try {
-            const response = await axios.post("http://localhost:5000/login", { 
+            const response = await axios.post(`${API_URL}/login`, { 
                 email: cleanedEmail, password 
             });
             

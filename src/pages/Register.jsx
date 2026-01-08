@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { API_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../redux/userReducer";
@@ -54,7 +55,7 @@ const Register = () => {
         }
 
         try {
-            const response = await axios.post("http://localhost:5000/register", {
+            const response = await axios.post(`${API_URL}/register`, {
                 email: formData.email,
                 password: formData.password,
                 first_name: formData.first_name,

@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { API_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 import AliceLayout from "../components/AliceLayout";
 
@@ -17,14 +18,14 @@ const UserProfile = () => {
         console.log(" userId mis à jour :", userId);
         
         // Récupérer les infos de l'utilisateur
-        axios.get(`http://localhost:5000/admin/user/${userId}`, {
+        axios.get(`${API_URL}/admin/user/${userId}`, {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
         })
         .then(response => setUser(response.data))
         .catch(error => console.error("Erreur récupération utilisateur :", error));
 
         // Récupérer les rendez-vous liés à cet utilisateur
-        axios.get(`http://localhost:5000/admin/user/${userId}/appointments`, {
+        axios.get(`${API_URL}/admin/user/${userId}/appointments`, {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
         })
         .then(response => setAppointments(response.data))

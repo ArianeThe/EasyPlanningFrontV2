@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { API_URL } from '../../config';
 import AliceLayout from '../../components/AliceLayout';
 import '../../styles/Documents.css';
 
@@ -46,7 +47,7 @@ const DocumentDetail = () => {
             }
             
             // Récupérer la liste des documents pour trouver celui avec l'ID correspondant
-            const response = await axios.get(`http://localhost:5000/documents/${userIdToFetch}`, {
+            const response = await axios.get(`${API_URL}/documents/${userIdToFetch}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
 
@@ -87,7 +88,7 @@ const DocumentDetail = () => {
         const userIdToUse = targetUserId || (role === 'admin' && userId ? parseInt(userId) : userInfo?.id);
         if (!userIdToUse) return null;
         const token = localStorage.getItem('token');
-        return `http://localhost:5000/documents/${userIdToUse}/${document.id}/download?token=${encodeURIComponent(token)}`;
+        return `${API_URL}/documents/${userIdToUse}/${document.id}/download?token=${encodeURIComponent(token)}`;
     };
 
     const handleOpenDocument = () => {

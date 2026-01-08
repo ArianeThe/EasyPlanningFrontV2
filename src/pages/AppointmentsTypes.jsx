@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { API_URL } from "../config";
 import { useNavigate } from "react-router-dom";
 import AliceLayout from "../components/AliceLayout";
 import "../styles/AppointmentsTypes.css";
@@ -13,7 +14,7 @@ const AppointmentTypes = () => {
 
     // Charger les types depuis le backend
 useEffect(() => {
-    axios.get("http://localhost:5000/admin/appointment-types", {
+    axios.get(`${API_URL}/admin/appointment-types`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     })
     .then(response => setAppointmentTypes(response.data))
@@ -23,7 +24,7 @@ useEffect(() => {
 
 const addType = () => {
   if (newType.trim()) {
-    axios.post("http://localhost:5000/admin/appointment-types", 
+    axios.post(`${API_URL}/admin/appointment-types`, 
       { name: newType, color: newColor },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     )
@@ -47,7 +48,7 @@ const addType = () => {
 
 
 const removeType = (typeId) => {
-    axios.delete(`http://localhost:5000/admin/appointment-types/${typeId}`, 
+    axios.delete(`${API_URL}/admin/appointment-types/${typeId}`, 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } } 
     )
     .then(() => setAppointmentTypes(appointmentTypes.filter(type => type.id !== typeId)))

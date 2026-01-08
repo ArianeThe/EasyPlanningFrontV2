@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { API_URL } from '../../config';
 import AliceLayout from '../../components/AliceLayout';
 import '../../styles/Documents.css';
 
@@ -55,7 +56,7 @@ const DocumentUpload = () => {
             formData.append('titre', titre);
             formData.append('user_id', userInfo?.id);
 
-            const response = await axios.post('http://localhost:5000/documents/upload', formData, {
+            const response = await axios.post(`${API_URL}/documents/upload`, formData, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'multipart/form-data'

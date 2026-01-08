@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { API_URL } from "../config";
 
 export const fetchAppointments = createAsyncThunk("calendar/fetchAppointments", async () => {
     const token = localStorage.getItem("token");
     console.log("🔐 Token utilisé :", token);
 
     try {
-        const response = await axios.get("http://localhost:5000/admin/appointments", {
+        const response = await axios.get(`${API_URL}/admin/appointments`, {
             headers: { 
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json"

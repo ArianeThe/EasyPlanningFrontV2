@@ -6,10 +6,11 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../config";
 import { fetchAppointments } from "../redux/calendarReducer";
 import frLocale from '@fullcalendar/core/locales/fr';
 
-// 🔧 AJOUT: Imports CSS nécessaires
+//  AJOUT: Imports CSS nécessaires
 //import '@fullcalendar/react/dist/vdom'; // important si tu as des erreurs React 18+
 
 //import '@fullcalendar/daygrid/dist/daygrid.css';
@@ -26,20 +27,21 @@ const Calendar = ({ events }) => {
     const userRole = useSelector((state) => state.user.role);
     const userId = useSelector((state) => state.user.userInfo?.id);
     const calendarStatus = useSelector((state) => state.calendar.status);
-    const reduxEvents = useSelector((state) => state.calendar.appointments || []);
+    // 🔧 Correction : les événements sont stockés dans `state.calendar.events` (et non `appointments`)
+    const reduxEvents = useSelector((state) => state.calendar.events || []);
     
-    // 🔧 État local pour éviter les re-renders excessifs
+    //  État local pour éviter les re-renders excessifs
     const [isCalendarReady, setIsCalendarReady] = useState(false);
     const [renderKey, setRenderKey] = useState(0);
 
-    // 🔧 Mémorisation des événements pour éviter les re-calculs constants
+    //  Mémorisation des événements pour éviter les re-calculs constants
     const eventsToDisplay = useMemo(() => {
         const sourceEvents = events && events.length > 0 ? events : reduxEvents;
         console.log("🔄 Recalcul des événements:", sourceEvents.length);
         return sourceEvents;
     }, [events, reduxEvents]);
 
-    // 🔧 Formatage mémorisé des événements
+    //  Formatage mémorisé des événements
     const formattedEvents = useMemo(() => {
         console.log("🔄 Formatage des événements:", eventsToDisplay.length);
         return eventsToDisplay.map(event => {
@@ -61,7 +63,7 @@ const Calendar = ({ events }) => {
         }).filter(Boolean);
     }, [eventsToDisplay]);
 
-    // 🔧 Chargement initial contrôlé
+    // Chargement initial contrôlé
     useEffect(() => {
         let isMounted = true;
         
@@ -98,7 +100,7 @@ const Calendar = ({ events }) => {
     const handleSelect = async (info) => {
         if (userRole !== "admin") {
             try {
-                await axios.post("http://localhost:5000/book-appointment", { 
+                await axios.post(`${API_URL}/book-appointment`, { 
                     userId, 
                     start: info.startStr, 
                     end: info.endStr 
@@ -198,7 +200,8 @@ const Calendar = ({ events }) => {
                 selectable={userRole !== "admin"}
                 select={handleSelect}
                 height="100%"
-                slotMinTime="09:45:00"
+                // ⚙ Harmonisation avec les créneaux générés (9h00 → 20h00, pas 9h45)
+                slotMinTime="09:30:00"
                 slotMaxTime="20:00:00"
                 allDaySlot={false}
                 slotDuration="00:45:00"
