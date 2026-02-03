@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../config';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAppointments } from '../../redux/calendarReducer';
 
 export const useSlots = () => {
     const [slots, setSlots] = useState([]);
@@ -38,27 +40,21 @@ export const useSlots = () => {
 };
 
 export const useAppointments = () => {
-    const [appointments, setAppointments] = useState([]);
+    const dispatch = useDispatch();
+    const appointments = useSelector(state => state.calendar.events);
+    const status = useSelector(state => state.calendar.status);
 
-    const fetchAppointments = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/appointments`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
-            console.log("✅ Rendez-vous récupérés:", response.data);
-            setAppointments(response.data);
-        } catch (error) {
-            console.error('🚨 Erreur lors de la récupération des rendez-vous:', error);
-        }
+    const refreshAppointments = () => {
+        dispatch(fetchAppointments());
     };
 
     const cancelAppointment = async (appointmentId) => {
         try {
-            await axios.delete(`${API_URL}/appointments/${appointmentId}`, {
+            await axios.post(`${API_URL}/appointments/${appointmentId}/cancel`, {}, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
-            console.log("✅ Rendez-vous annulé :", appointmentId);
-            fetchAppointments();
+            console.log("✅ Rendez-vous annulé via Redux:", appointmentId);
+            refreshAppointments();
         } catch (error) {
             console.error("🚨 Erreur lors de l'annulation du rendez-vous :", error);
             throw error;
@@ -66,10 +62,26 @@ export const useAppointments = () => {
     };
 
     useEffect(() => {
-        fetchAppointments();
-    }, []);
+        if (status === 'idle') {
+            refreshAppointments();
+        }
+    }, [status, dispatch]);
 
-    return { appointments, fetchAppointments, cancelAppointment };
+    // Transformation pour compatibilité avec AppointmentsList (qui attend start_time/end_time)
+    const formattedAppointments = appointments.map(event => ({
+        id: event.id,
+        start_time: event.start,
+        end_time: event.end,
+        appointment_type: event.extendedProps?.appointmentType,
+        status: event.extendedProps?.status,
+        type_color: event.backgroundColor
+    }));
+
+    return {
+        appointments: formattedAppointments,
+        fetchAppointments: refreshAppointments,
+        cancelAppointment
+    };
 };
 
 export const useAppointmentTypes = () => {

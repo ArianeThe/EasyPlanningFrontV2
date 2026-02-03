@@ -27,25 +27,6 @@ const ProfileInfo = ({ userInfo }) => {
                     </p>
                 </div>
             </div>
-
-            {/* Mes documents partagés */}
-            <div className="documents-section">
-                <h2>Mes documents partagés</h2>
-                <div className="documents-buttons">
-                    <button
-                        className="documents-button"
-                        onClick={() => navigate(`/documents/${userInfo?.id}`)}
-                    >
-                        Accéder à mes documents
-                    </button>
-                    <button
-                        className="documents-button add-document-button"
-                        onClick={() => navigate('/documents/upload')}
-                    >
-                        ➕ Ajouter un document
-                    </button>
-                </div>
-            </div>
         </>
     );
 };

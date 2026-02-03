@@ -4,6 +4,7 @@ import { API_URL } from '../config';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/userReducer';
+import { fetchAppointments } from '../redux/calendarReducer';
 import '../styles/AdminDashboard.css';
 import '../styles/UserDashboard.css';
 import CalendarComponent from '../components/Calendar';
@@ -54,7 +55,15 @@ const AdminDashboard = () => {
             return;
         }
         fetchUsers();
-    }, [navigate]);
+
+        // Polling pour la coordination en temps réel
+        const interval = setInterval(() => {
+            console.log("🔄 Synchronisation admin automatique...");
+            dispatch(fetchAppointments());
+        }, 30000); // Toutes les 30 secondes
+
+        return () => clearInterval(interval);
+    }, [navigate, dispatch]);
 
     const handleLogout = () => {
         dispatch(logout());
@@ -93,7 +102,7 @@ const AdminDashboard = () => {
         e.preventDefault();
         setSlotLoading(true);
         setSlotMessage("");
-        
+
         try {
             const token = localStorage.getItem('token');
             const response = await axios.post(`${API_URL}/admin/slots`, {
@@ -107,7 +116,7 @@ const AdminDashboard = () => {
                     'Content-Type': 'application/json'
                 }
             });
-            
+
             setSlotMessage(`✅ ${response.data.count} créneaux générés avec succès !`);
             setTimeout(() => {
                 setShowSlotModal(false);
@@ -169,7 +178,7 @@ const AdminDashboard = () => {
                         <p style={{ fontSize: '0.9em', color: '#666', marginBottom: '10px' }}>
                             Génère des créneaux de 45 minutes de 9h30 à 20h00
                         </p>
-                        <button 
+                        <button
                             onClick={() => setShowSlotModal(true)}
                             style={{
                                 padding: '10px 20px',
@@ -218,7 +227,7 @@ const AdminDashboard = () => {
                                 <input
                                     type="date"
                                     value={slotForm.start_date}
-                                    onChange={(e) => setSlotForm({...slotForm, start_date: e.target.value})}
+                                    onChange={(e) => setSlotForm({ ...slotForm, start_date: e.target.value })}
                                     required
                                     style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
                                 />
@@ -230,7 +239,7 @@ const AdminDashboard = () => {
                                 <input
                                     type="date"
                                     value={slotForm.end_date}
-                                    onChange={(e) => setSlotForm({...slotForm, end_date: e.target.value})}
+                                    onChange={(e) => setSlotForm({ ...slotForm, end_date: e.target.value })}
                                     required
                                     style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
                                 />
@@ -244,7 +253,7 @@ const AdminDashboard = () => {
                                     min="0"
                                     max="23"
                                     value={slotForm.start_hour}
-                                    onChange={(e) => setSlotForm({...slotForm, start_hour: e.target.value})}
+                                    onChange={(e) => setSlotForm({ ...slotForm, start_hour: e.target.value })}
                                     required
                                     style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
                                 />
@@ -259,15 +268,15 @@ const AdminDashboard = () => {
                                     min="0"
                                     max="23"
                                     value={slotForm.end_hour}
-                                    onChange={(e) => setSlotForm({...slotForm, end_hour: e.target.value})}
+                                    onChange={(e) => setSlotForm({ ...slotForm, end_hour: e.target.value })}
                                     required
                                     style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
                                 />
                             </div>
                             {slotMessage && (
-                                <div style={{ 
-                                    padding: '10px', 
-                                    marginBottom: '15px', 
+                                <div style={{
+                                    padding: '10px',
+                                    marginBottom: '15px',
                                     borderRadius: '4px',
                                     backgroundColor: slotMessage.includes('✅') ? '#d4edda' : '#f8d7da',
                                     color: slotMessage.includes('✅') ? '#155724' : '#721c24'
@@ -276,8 +285,8 @@ const AdminDashboard = () => {
                                 </div>
                             )}
                             <div className="modal-buttons">
-                                <button 
-                                    type="submit" 
+                                <button
+                                    type="submit"
                                     disabled={slotLoading}
                                     style={{
                                         padding: '10px 20px',
@@ -291,7 +300,7 @@ const AdminDashboard = () => {
                                 >
                                     {slotLoading ? 'Génération...' : 'Générer'}
                                 </button>
-                                <button 
+                                <button
                                     type="button"
                                     onClick={() => {
                                         setShowSlotModal(false);

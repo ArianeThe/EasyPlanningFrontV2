@@ -64,12 +64,39 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-grow: 1; /* ⚡️ prend toute la place à gauche */
+  flex-grow: 1;
+  /* ⚡️ prend toute la place à gauche */
+}
+
+.type-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn {
+  width: auto;
+  margin-left: 0;
+  background-color: #ebf5ff;
+  color: #007bff;
+  border-color: #007bff;
+}
+
+.edit-btn:hover {
+  background-color: #007bff;
+  color: white;
 }
 
 .delete-btn {
   width: auto;
   margin-left: 0;
+  background-color: #fff5f5;
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.delete-btn:hover {
+  background-color: #dc3545;
+  color: white;
 }
 
 .color-box {

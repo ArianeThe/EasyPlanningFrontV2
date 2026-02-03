@@ -9,8 +9,9 @@ import AliceLayout from '../components/AliceLayout';
 
 // Import des composants modulaires
 import SlotsList from './User/SlotsList';
-import AppointmentsList from './User/AppointmentsList';
+import { UpcomingAppointments, PastAppointments } from './User/AppointmentsList';
 import ProfileInfo from './User/ProfileInfo';
+import DocumentsCard from './User/DocumentsCard';
 import { BookingModal, ProfileModal } from './User/Modals';
 import { useSlots, useAppointments, useAppointmentTypes } from './User/hooks';
 
@@ -61,6 +62,17 @@ const UserDashboard = () => {
             setCurrentPage(0);
         }
     }, [slots, currentPage]);
+
+    // Polling pour la coordination en temps réel
+    useEffect(() => {
+        const interval = setInterval(() => {
+            console.log("🔄 Synchronisation automatique...");
+            fetchSlots();
+            fetchAppointments();
+        }, 30000); // Toutes les 30 secondes
+
+        return () => clearInterval(interval);
+    }, []);
 
     // Handlers
     // Pré-remplir les données de profil quand l'utilisateur est disponible
@@ -164,8 +176,8 @@ const UserDashboard = () => {
 
                 {/* Contenu principal */}
                 <div className="dashboard-content">
-                    {/* Colonne gauche : Créneaux disponibles */}
-                    <div className="left-column">
+                    {/* Colonne gauche : Créneaux disponibles et Documents */}
+                    <div className="left-column" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
                         <SlotsList
                             slots={slots}
                             selectedSlot={selectedSlot}
@@ -173,15 +185,17 @@ const UserDashboard = () => {
                             currentPage={currentPage}
                             setCurrentPage={setCurrentPage}
                         />
+                        <DocumentsCard userId={userInfo?.id} />
                     </div>
 
                     {/* Colonne droite : Profil et rendez-vous */}
-                    <div className="right-column">
+                    <div className="right-column" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
                         <ProfileInfo userInfo={userInfo} />
-                        <AppointmentsList
+                        <UpcomingAppointments
                             appointments={appointments}
                             onCancel={handleCancelAppointment}
                         />
+                        <PastAppointments appointments={appointments} />
                     </div>
                 </div>
 

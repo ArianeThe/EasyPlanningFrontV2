@@ -2,31 +2,48 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { API_URL } from "../config";
 
-export const fetchAppointments = createAsyncThunk("calendar/fetchAppointments", async () => {
+export const fetchAppointments = createAsyncThunk("calendar/fetchAppointments", async (_, { getState }) => {
     const token = localStorage.getItem("token");
-    console.log("🔐 Token utilisé :", token);
+    const { role } = getState().user;
+
+    // Si c'est un admin, on utilise la route admin, sinon la route user
+    const endpoint = role === "admin" ? "/admin/appointments" : "/appointments";
 
     try {
-        const response = await axios.get(`${API_URL}/admin/appointments`, {
-            headers: { 
+        const response = await axios.get(`${API_URL}${endpoint}`, {
+            headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json"
             }
         });
 
-        console.log("🔍 Réponse API complète :", response.data);
-        
-        // L'API retourne { appointments: [...] }
-        const appointments = response.data.appointments;
-        console.log("🔍 Rendez-vous extraits :", appointments);
-        
+        // Normalisation : l'admin retourne { appointments: [] }, l'user retourne un tableau direct []
+        let appointments = Array.isArray(response.data) ? response.data : response.data.appointments;
+
         if (!Array.isArray(appointments)) {
+            console.error("Format de données invalide:", response.data);
             throw new Error("Les données reçues ne sont pas un tableau");
         }
-        
+
+        // Pour la route user, on transforme legerement pour que FullCalendar comprenne
+        if (role !== "admin") {
+            appointments = appointments.map(apt => ({
+                id: apt.id,
+                title: apt.appointment_type || "Mon RDV",
+                start: apt.start_time,
+                end: apt.end_time,
+                user_id: apt.user_id,
+                appointment_type: apt.appointment_type,
+                status: apt.status,
+                backgroundColor: apt.type_color || '#3788d8',
+                borderColor: apt.type_color || '#3788d8',
+                patient_name: "Moi"
+            }));
+        }
+
         return appointments;
     } catch (error) {
-        console.error("🚨 Erreur API Redux :", error);
+        console.error(`🚨 Erreur API Redux (${endpoint}) :`, error);
         throw error;
     }
 });
@@ -49,10 +66,10 @@ const calendarSlice = createSlice({
     name: "calendar",
     initialState,
     reducers: {
-        setEvents: (state, action) => { 
+        setEvents: (state, action) => {
             state.events = action.payload;
         },
-        setAvailableSlots: (state, action) => { 
+        setAvailableSlots: (state, action) => {
             state.availableSlots = action.payload;
         },
     },
@@ -91,8 +108,8 @@ const calendarSlice = createSlice({
                             title: apt.title,
                             start: apt.start, // Déjà au bon format ISO
                             end: apt.end,     // Déjà au bon format ISO
-                            backgroundColor: '#4CAF50',
-                            borderColor: '#4CAF50',
+                            backgroundColor: apt.backgroundColor || '#4CAF50',
+                            borderColor: apt.borderColor || '#4CAF50',
                             textColor: '#ffffff',
                             allDay: false,
                             display: 'block',

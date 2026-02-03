@@ -111,6 +111,8 @@ const Appointment = () => {
             };
             await axios.post(`${API_URL}/appointments/${event.id}/cancel`, {}, { headers });
             await dispatch(fetchAppointments());
+            alert("✅ Rendez-vous annulé avec succès");
+            navigate(role === "admin" ? "/admin" : "/user");
         } catch (e) {
             console.error("Annulation échouée", e);
         } finally {
@@ -165,104 +167,104 @@ const Appointment = () => {
 
     return (
         <AliceLayout>
-        <div className="user-dashboard appointment-page" style={controlWidthPx ? { ['--ctrl-w']: controlWidthPx } : undefined}>
-            <h2 className="appointment-title">Détail du rendez-vous</h2>
+            <div className="user-dashboard appointment-page" style={controlWidthPx ? { ['--ctrl-w']: controlWidthPx } : undefined}>
+                <h2 className="appointment-title">Détail du rendez-vous</h2>
 
-            <div className="appointment-grid">
-                {/* Colonne gauche: détails + annulation */}
-                <div className="appointment-col">
-                    <h3 className="col-title">Informations</h3>
+                <div className="appointment-grid">
+                    {/* Colonne gauche: détails + annulation */}
+                    <div className="appointment-col">
+                        <h3 className="col-title">Informations</h3>
 
-                    <div className="appointment-row">
-                        <strong>Patient:</strong> {patientName}
-                        {patientId && (
-                            <> — <Link to={`/admin/user/${patientId}`}>Voir la fiche</Link></>
-                        )}
-                    </div>
-
-                    <div className="appointment-row">
-                        <strong>Date/Heure:</strong> {start.toLocaleString()} {end ? ` → ${end.toLocaleString()}` : ""}
-                    </div>
-
-                    <div className="appointment-row">
-                        <strong>Motif:</strong> {appointmentType}
-                    </div>
-
-                    <div className="appointment-row">
-                        <strong>Statut:</strong> {statutTexte}
-                        {cancelledBy && statutTexte === "Annulé" && (
-                            <> — <em>Annulé par: {cancelledBy}</em></>
-                        )}
-                    </div>
-
-                    <button ref={cancelBtnRef} className="btn btn-danger btn-fit" onClick={handleCancel} disabled={cancelLoading}>
-                        {cancelLoading ? "Annulation…" : "Annuler le rendez-vous"}
-                    </button>
-                </div>
-
-                {/* Colonne droite: repositionner + partage */}
-                <div className="appointment-col">
-                    <h3 className="col-title">Actions</h3>
-
-                    <div className="panel">
-                        <div className="panel-title">Repositionner</div>
-                        <div className="reschedule-row">
-                            <input className="input input-ctrl" type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
-                            <input className="input input-ctrl" type="time" value={newTime} onChange={(e) => setNewTime(e.target.value)} />
-                            <button className="btn btn-ctrl" onClick={handleReschedule} disabled={reschedLoading || !newDate || !newTime}>
-                                {reschedLoading ? "Repositionnement…" : "Valider"}
-                            </button>
+                        <div className="appointment-row">
+                            <strong>Patient:</strong> {patientName}
+                            {patientId && (
+                                <> — <Link to={`/admin/user/${patientId}`}>Voir la fiche</Link></>
+                            )}
                         </div>
+
+                        <div className="appointment-row">
+                            <strong>Date/Heure:</strong> {start.toLocaleString()} {end ? ` → ${end.toLocaleString()}` : ""}
+                        </div>
+
+                        <div className="appointment-row">
+                            <strong>Motif:</strong> {appointmentType}
+                        </div>
+
+                        <div className="appointment-row">
+                            <strong>Statut:</strong> {statutTexte}
+                            {cancelledBy && statutTexte === "Annulé" && (
+                                <> — <em>Annulé par: {cancelledBy}</em></>
+                            )}
+                        </div>
+
+                        <button ref={cancelBtnRef} className="btn btn-danger btn-fit" onClick={handleCancel} disabled={cancelLoading}>
+                            {cancelLoading ? "Annulation…" : "Annuler le rendez-vous"}
+                        </button>
                     </div>
 
-                    {(role === "admin" || isOwner) && (
+                    {/* Colonne droite: repositionner + partage */}
+                    <div className="appointment-col">
+                        <h3 className="col-title">Actions</h3>
+
                         <div className="panel">
-                            <div className="panel-title">Partager un document</div>
-                            <div className="share-row">
-                                <input className="input input-ctrl" type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
-                                <button className="btn btn-ctrl" onClick={handleShare} disabled={shareLoading || !file}>
-                                    {shareLoading ? "Partage…" : "Partager"}
+                            <div className="panel-title">Repositionner</div>
+                            <div className="reschedule-row">
+                                <input className="input input-ctrl" type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
+                                <input className="input input-ctrl" type="time" value={newTime} onChange={(e) => setNewTime(e.target.value)} />
+                                <button className="btn btn-ctrl" onClick={handleReschedule} disabled={reschedLoading || !newDate || !newTime}>
+                                    {reschedLoading ? "Repositionnement…" : "Valider"}
                                 </button>
                             </div>
                         </div>
-                    )}
 
-                    <div className="panel">
-                        <div className="panel-title">Documents partagés</div>
-                        <div className="docs-list">
-                            {docsLoading ? (
-                                <div className="docs-empty">Chargement…</div>
-                            ) : sharedDocs.length === 0 ? (
-                                <div className="docs-empty">Aucun document partagé.</div>
-                            ) : (
-                                <ul>
-                                    {sharedDocs.map((doc) => (
-                                        <li key={doc.id}>
-                                            <span>{doc.name}</span>
-                                            {patientId && (
-                                                <a
-                                    href={`${API_URL}/documents/${patientId}/${doc.id}/download?token=${localStorage.getItem("token")}`}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                >
-                                                    Télécharger
-                                                </a>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
+                        {(role === "admin" || isOwner) && (
+                            <div className="panel">
+                                <div className="panel-title">Partager un document</div>
+                                <div className="share-row">
+                                    <input className="input input-ctrl" type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                                    <button className="btn btn-ctrl" onClick={handleShare} disabled={shareLoading || !file}>
+                                        {shareLoading ? "Partage…" : "Partager"}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="panel">
+                            <div className="panel-title">Documents partagés</div>
+                            <div className="docs-list">
+                                {docsLoading ? (
+                                    <div className="docs-empty">Chargement…</div>
+                                ) : sharedDocs.length === 0 ? (
+                                    <div className="docs-empty">Aucun document partagé.</div>
+                                ) : (
+                                    <ul>
+                                        {sharedDocs.map((doc) => (
+                                            <li key={doc.id}>
+                                                <span>{doc.name}</span>
+                                                {patientId && (
+                                                    <a
+                                                        href={`${API_URL}/documents/${patientId}/${doc.id}/download?token=${localStorage.getItem("token")}`}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                    >
+                                                        Télécharger
+                                                    </a>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {role === "admin" && (
-                <div className="back-row">
-                    <button className="btn btn-ctrl" onClick={() => navigate('/calendar')}>← Retour au calendrier</button>
-                </div>
-            )}
-        </div>
+                {role === "admin" && (
+                    <div className="back-row">
+                        <button className="btn btn-ctrl" onClick={() => navigate('/calendar')}>← Retour au calendrier</button>
+                    </div>
+                )}
+            </div>
         </AliceLayout>
     );
 };

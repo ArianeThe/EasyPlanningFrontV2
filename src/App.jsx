@@ -4,6 +4,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "./redux/userReducer";  // Import action déconnexion
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Calendar from "./components/Calendar";
@@ -25,12 +27,12 @@ const App = () => {
     };
 
     const handleLogout = () => {
-      dispatch(logout());  // Supprimer l'état Redux
-      localStorage.removeItem("token");  // Supprimer le token
-      localStorage.removeItem("role");   // Supprimer le rôle
-      localStorage.removeItem("userInfo");
-      window.location.href = "/login";   // Redirection forcée vers la page de connexion
-  };
+        dispatch(logout());  // Supprimer l'état Redux
+        localStorage.removeItem("token");  // Supprimer le token
+        localStorage.removeItem("role");   // Supprimer le rôle
+        localStorage.removeItem("userInfo");
+        window.location.href = "/login";   // Redirection forcée vers la page de connexion
+    };
 
     // Composant pour protéger les routes admin
     const ProtectedAdminRoute = ({ children }) => {
@@ -67,6 +69,8 @@ const App = () => {
                     />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                     <Route
                         path="/admin"
                         element={
@@ -76,23 +80,23 @@ const App = () => {
                         }
                     />
 
-                    <Route 
-                        path="/admin/appointment-types" 
+                    <Route
+                        path="/admin/appointment-types"
                         element={
                             <ProtectedAdminRoute>
                                 <AppointmentTypes />
                             </ProtectedAdminRoute>
-                        } 
-                   />
+                        }
+                    />
 
-                   <Route 
-                       path="/admin/user/:userId" 
-                      element={
-                          <ProtectedAdminRoute>
-                              <UserProfile />
-                          </ProtectedAdminRoute>
-                      } 
-                  />
+                    <Route
+                        path="/admin/user/:userId"
+                        element={
+                            <ProtectedAdminRoute>
+                                <UserProfile />
+                            </ProtectedAdminRoute>
+                        }
+                    />
 
 
                     <Route
@@ -112,15 +116,15 @@ const App = () => {
                         </ProtectedUserRoute>
                     } />
 
-                    <Route 
-                        path="/appointment/:appointmentId" 
+                    <Route
+                        path="/appointment/:appointmentId"
                         element={
                             isAuthenticated ? <Appointment /> : <Navigate to="/login" />
                         }
                     />
 
-                    <Route 
-                        path="/mes-documents" 
+                    <Route
+                        path="/mes-documents"
                         element={
                             <ProtectedDocumentsRoute>
                                 <RedirectToMyDocuments />
@@ -128,8 +132,8 @@ const App = () => {
                         }
                     />
 
-                    <Route 
-                        path="/documents/:userId" 
+                    <Route
+                        path="/documents/:userId"
                         element={
                             <ProtectedDocumentsRoute>
                                 <DocumentsList />
@@ -137,8 +141,8 @@ const App = () => {
                         }
                     />
 
-                    <Route 
-                        path="/documents/:userId/:documentId" 
+                    <Route
+                        path="/documents/:userId/:documentId"
                         element={
                             <ProtectedDocumentsRoute>
                                 <DocumentDetail />
@@ -146,8 +150,8 @@ const App = () => {
                         }
                     />
 
-                    <Route 
-                        path="/documents/upload" 
+                    <Route
+                        path="/documents/upload"
                         element={
                             <ProtectedDocumentsRoute>
                                 <DocumentUpload />

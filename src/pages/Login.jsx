@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../config";
-import { useDispatch, useSelector } from "react-redux"; 
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginSuccess, logout } from "../redux/userReducer";
-import "../styles/login.css";  
+import "../styles/login.css";
 import AliceLayout from "../components/AliceLayout";
 
 const Login = () => {
@@ -32,7 +32,7 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        
+
         const cleanedEmail = email.trim().toLowerCase();
         if (!validateEmail(cleanedEmail)) {
             setErrorMessage("Format d'email invalide");
@@ -40,10 +40,10 @@ const Login = () => {
         }
 
         try {
-            const response = await axios.post(`${API_URL}/login`, { 
-                email: cleanedEmail, password 
+            const response = await axios.post(`${API_URL}/login`, {
+                email: cleanedEmail, password
             });
-            
+
             dispatch(loginSuccess({
                 token: response.data.token,
                 role: response.data.role,
@@ -70,25 +70,29 @@ const Login = () => {
                 <h2>Connexion</h2>
                 <form onSubmit={handleLogin}>
                     <div className="form-group">
-                        <input 
-                            type="email" 
-                            placeholder="Email" 
+                        <input
+                            type="email"
+                            placeholder="Email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className={errorMessage.includes('email') ? 'error' : ''}
                         />
                     </div>
                     <div className="form-group">
-                        <input 
-                            type="password" 
-                            placeholder="Mot de passe" 
+                        <input
+                            type="password"
+                            placeholder="Mot de passe"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)} 
+                            onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
                     {errorMessage && <div className="error-message">{errorMessage}</div>}
                     <button type="submit">Se connecter</button>
                 </form>
+
+                <p className="mt-3">
+                    <a href="/forgot-password">Mot de passe oublié ?</a>
+                </p>
 
                 <p className="mt-3">
                     Pas encore de compte ? <a href="/register">S'inscrire</a>
